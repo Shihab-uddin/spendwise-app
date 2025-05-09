@@ -3,5 +3,10 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",
     "source.sortMembers": "explicit"
-  }
+  },
+  "files.exclude": {
+    "**/node_modules": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "javascript.implicitProjectConfig.checkJs": false
 }
