@@ -1,9 +1,11 @@
+// services/api.js
 import axios from 'axios';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.100:5000'; // fallback
-
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.101:5000/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
-
+console.log('API BASE URL:', process.env.EXPO_PUBLIC_API_URL);
 export default api;

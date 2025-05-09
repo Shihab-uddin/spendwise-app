@@ -1,34 +1,26 @@
+// screens/LoginScreen.js
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
-import { TextInput, Button, Text, Title } from 'react-native-paper';
+import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import api from '../services/api';
 
-const LoginScreen = ({ navigation }) => {
+export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Validation Error', 'Email and password are required.');
-      return;
-    }
-
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await axios.post('/api/auth/login', {
-        email,
-        password,
-      });
+      const response = await api.post('/auth/login', { email, password });
 
       const { token } = response.data;
+      await AsyncStorage.setItem('token', token);
 
-      await AsyncStorage.setItem('authToken', token);
-      navigation.replace('Dashboard');
+      navigation.navigate('Dashboard');
     } catch (error) {
-      Alert.alert('Login Failed', error.response?.data?.message || 'An error occurred');
+      console.error('Login error:', error.response?.data || error.message);
+      Alert.alert('Login failed', error.response?.data?.message || 'Check credentials');
     } finally {
       setLoading(false);
     }
@@ -36,53 +28,30 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Title style={styles.title}>Login to Spendwise</Title>
       <TextInput
-        label="Email"
-        value={email}
-        mode="outlined"
-        onChangeText={setEmail}
+        placeholder="Email"
         style={styles.input}
-        keyboardType="email-address"
         autoCapitalize="none"
+        onChangeText={(text) => setEmail(text.trim().toLowerCase())}
+        value={email}
       />
       <TextInput
-        label="Password"
-        value={password}
-        mode="outlined"
-        onChangeText={setPassword}
+        placeholder="Password"
         style={styles.input}
         secureTextEntry
+        onChangeText={(text) => setPassword(text.trim())}
+        value={password}
       />
-      <Button
-        mode="contained"
-        onPress={handleLogin}
-        loading={loading}
-        disabled={loading}
-        style={styles.button}
-      >
-        Login
-      </Button>
+      <Button title={loading ? 'Logging in...' : 'Login'} onPress={handleLogin} disabled={loading} />
     </View>
   );
-};
-
-export default LoginScreen;
+}
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    alignSelf: 'center',
-    marginBottom: 24,
+    flex: 1, justifyContent: 'center', padding: 20,
   },
   input: {
-    marginBottom: 16,
-  },
-  button: {
-    marginTop: 8,
+    borderWidth: 1, borderColor: '#ccc', padding: 10, marginBottom: 10, borderRadius: 5,
   },
 });
